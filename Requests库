@@ -1,0 +1,211 @@
+Requests 库是一个非常容易上手的 python 爬虫库，相比于 urllib 库， requests 库非常简洁。
+ 安装命令：
+pip 安装请求
+pip install requests
+请求库有方法有所有的方法，请求使用方法都可以通过方法来实现请求（）的。因此，严格来说，请求库只有一个请求（）方法。但一般都不会直接。
+ 
+下面是一些常用的方法：
+ 
+get() 方法
+requests 基本的 get 方法
+res = requests.get(url,headers=headers,params,timeout)
+参数说明如下：
+url：要抓取的 url 地址。
+headers：用于包装请求头信息。
+params：请求时携带的查询字符串参数。
+timeout：超时时间，超过时间会抛出异常。
+
+首先来看一下 requests 下 get 方法的基本用法，下面代码输出了 get() 方法返回值的类型和状态码（状态码为 200 表示请求成功）：
+ 
+import requests
+response = requests.get("http://www.baidu.com")
+print(type(response))
+print(response.status_code)
+代码运行结果为： 
+<class ‘requests.models.Response’>
+200
+ 
+利用返回值的 text 属性，可以得到请求的内容：
+ 
+import requests
+response = requests.get("http://httpbin.org/get")
+print(response.text)
+输出结果：
+ 
+{
+“args”: {},
+“headers”: {
+“Accept”: “/”,
+“Accept-Encoding”: “gzip, deflate”,
+“Connection”: “close”,
+“Host”: “httpbin.org”,
+“User-Agent”: “python-requests/2.18.4”
+},
+“origin”: “123.126.85.145”,
+“url”: “http://httpbin.org/get”
+}
+
+当我们使用 Requests 模块向一个 URL 发起请求后会返回一个 HttpResponse 响应对象，该对象具有以下常用属性：
+常用属性	说明
+encoding	查看或者指定响应字符编码
+status_code	返回HTTP响应码
+url	查看请求的 url 地址
+headers	查看请求头信息
+cookies	查看cookies 信息
+text	以字符串形式输出
+content	以字节流形式输出，若要保存下载图片需使用该属性。
+如：
+import requests
+response = requests.get('http://www.baidu.com')
+print(response.encoding)
+response.encoding="utf-8" #更改为utf-8编码
+print(response.status_code)  # 打印状态码
+print(response.url)          # 打印请求url
+print(response.headers)      # 打印头信息
+print(response.cookies)      # 打印cookie信息
+print(response.text)  #以字符串形式打印网页源码
+print(response.content) #以字节流形式打印
+
+
+带参数的 get() 方法
+正常写法
+带参数 url 的正常写法是写在 url 后面的，代码如下：
+ 
+import requests
+response = requests.get("http://httpbin.org/get?name=rocketeerLi&age=22")
+print(response.text)
+输出结果：
+{
+“args”: {
+“age”: “22”,
+“name”: “rocketeerLi”
+},
+“headers”: {
+“Accept”: “/”,
+“Accept-Encoding”: “gzip, deflate”,
+“Connection”: “close”,
+“Host”: “httpbin.org”,
+“User-Agent”: “python-requests/2.18.4”
+},
+“origin”: “123.126.85.145”,
+“url”: “http://httpbin.org/get?name=rocketeerLi&age=22”
+}
+ 
+传参数的方式
+将参数写成字典的形式，利用 get() 方法的参数进行请求，可以动态更改请求参数，代码如下：
+ 
+import requests
+data = {
+    'name':"rocketeerLi",
+    'age':22
+}
+response = requests.get("http://httpbin.org/get", params=data)
+print(response.text)
+输出结果是和直接在 url 上拼接是一样的：
+{
+“args”: {
+“age”: “22”,
+“name”: “rocketeerLi”
+},
+“headers”: {
+“Accept”: “/”,
+“Accept-Encoding”: “gzip, deflate”,
+“Connection”: “close”,
+“Host”: “httpbin.org”,
+“User-Agent”: “python-requests/2.18.4”
+},
+“origin”: “123.126.85.145”,
+“url”: “http://httpbin.org/get?name=rocketeerLi&age=22”
+}
+ 
+添加 headers
+requests 库也可以直接添加 headers，例如，在很多时候，直接利用 get 方法访问网址的时候，会被拒绝。很大一部分原因就是没有添加请求的头部信息。例如，在访问知乎的时候，如果没有浏览器的头部信息，则访问会被拒绝，报 400 Bad Request 错误。
+ 
+代码：
+import requests
+# requests 添加 headers
+# 如果不加任何 header 会报错 400 Bad Request
+response = requests.get("https://www.zhihu.com/explore")
+print(response.text)
+输出结果：
+ 
+<html>
+<head><title>400 Bad Request</title></head>
+<body bgcolor="white">
+<center><h1>400 Bad Request</h1></center>
+<hr><center>openresty</center>
+</body>
+</html>
+加入头部信息后的代码如下：
+import requests
+# 加入浏览器信息
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36(KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36'}
+response = requests.get("https://www.zhihu.com/explore", headers=headers)
+print(response.text)
+会输出正常结果：
+ 
+
+
+
+post() 方法
+post 方法的基本使用
+
+import requests
+# 基本 post 请求
+data = {'name':'rocketeerLi', 'age':'22'}
+response = requests.post("http://httpbin.org/post", data=data)
+print(response.text)
+输出结果：
+{
+“args”: {},
+“data”: “”,
+“files”: {},
+“form”: {
+“age”: “22”,
+“name”: “rocketeerLi”
+},
+“headers”: {
+“Accept”: “/”,
+“Accept-Encoding”: “gzip, deflate”,
+“Connection”: “close”,
+“Content-Length”: “23”,
+“Content-Type”: “application/x-www-form-urlencoded”,
+“Host”: “httpbin.org”,
+“User-Agent”: “python-requests/2.18.4”
+},
+“json”: null,
+“origin”: “123.126.85.145”,
+“url”: “http://httpbin.org/post”
+}
+ 
+传递 headers 参数
+import requests
+# 传参数增加 headers
+data = {'name':'rocketeerLi', 'age':'22'}
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36'}
+response = requests.post("http://httpbin.org/post", data=data, headers=headers)
+print(response.text)
+输出结果改变了 User-Agent 的值：
+{
+“args”: {},
+“data”: “”,
+“files”: {},
+“form”: {
+“age”: “22”,
+“name”: “rocketeerLi”
+},
+“headers”: {
+“Accept”: “/”,
+“Accept-Encoding”: “gzip, deflate”,
+“Connection”: “close”,
+“Content-Length”: “23”,
+“Content-Type”: “application/x-www-form-urlencoded”,
+“Host”: “httpbin.org”,
+“User-Agent”: “Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36”
+},
+“json”: null,
+“origin”: “123.126.85.145”,
+“url”: “http://httpbin.org/post”
+}
